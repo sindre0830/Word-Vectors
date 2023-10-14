@@ -2,6 +2,7 @@ from constants import (
     PROJECT_DIRECTORY_PATH
 )
 import utils
+import datahandler.loaders
 
 import os
 import numpy as np
@@ -13,3 +14,5 @@ def run() -> None:
     # set seed
     np.random.seed(config.seed)
     torch.manual_seed(config.seed)
+
+    corpus_loader = datahandler.loaders.CorpusLoader()
