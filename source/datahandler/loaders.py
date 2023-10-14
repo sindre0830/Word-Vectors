@@ -1,3 +1,12 @@
+from constants import (
+    PROJECT_DIRECTORY_PATH
+)
+from utils import (
+    save_numpy,
+    load_numpy
+)
+
+import os
 import gensim.downloader
 import itertools
 import nltk
@@ -5,6 +14,7 @@ import nltk.corpus
 import tqdm
 import numpy as np
 import collections
+import torch
 
 
 class Corpus():
@@ -17,7 +27,7 @@ class Corpus():
             step()
 
     def download(self) -> None:
-        self.sentences = gensim.downloader.load("text8")
+        self.sentences = list(gensim.downloader.load("text8"))
 
     def flatten(self) -> None:
         self.words = list(itertools.chain.from_iterable(self.sentences))
@@ -82,19 +92,62 @@ class Vocabulary():
 
     def __len__(self):
         return len(self.token_to_index)
-    
+
     def __contains__(self, token: str):
         return token in self.token_to_index
 
 
 class DataLoaderCBOW():
-    def __init__(self, batch_size: int) -> None:
+    def __init__(self, batch_size: int):
         self.context_words = None
         self.target_words = None
-    
+
         self._num_samples = 0
         self._batch_size = batch_size
-    
+
+    def build(self, sentences: list[list[str]], vocabulary: Vocabulary, window_size: int, device: str):
+        context_words_filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "training_data", "context_words.npy")
+        target_words_filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "training_data", "target_words.npy")
+
+        if os.path.exists(context_words_filepath) and os.path.exists(target_words_filepath):
+            progress_bar = tqdm.tqdm(desc="Building training data", total=1)
+            self.context_words = torch.tensor(load_numpy(context_words_filepath), dtype=torch.long, device=device)
+            self.target_words = torch.tensor(load_numpy(target_words_filepath), dtype=torch.long, device=device)
+            self._num_samples = len(self.target_words)
+            progress_bar.update(1)
+            return
+
+        context_words = []
+        target_words = []
+        for sentence in tqdm.tqdm(sentences, desc="Building training data"):
+            for center_position, center_word in enumerate(sentence):
+                if center_word not in vocabulary:
+                    continue
+                # define the boundaries of the window
+                start_position = max(0, center_position - window_size)
+                end_position = min(len(sentence), center_position + window_size + 1)
+                # extract words around the center word within the window
+                context = [
+                    vocabulary.get_index(word, vocabulary.padding_index)
+                    for pos, word in enumerate(sentence[start_position:end_position])
+                    if pos != center_position - start_position
+                ]
+                # add padding index if context words are missing
+                padding_needed = 2 * window_size - len(context)
+                context.extend([vocabulary.padding_index] * padding_needed)
+
+                context_words.append(context)
+                target_words.append(vocabulary.get_index(center_word))
+        
+        context_words = np.array(context_words)
+        target_words = np.array(target_words)
+        save_numpy(context_words_filepath, context_words)
+        save_numpy(target_words_filepath, target_words)
+
+        self.context_words = torch.tensor(context_words, dtype=torch.long, device=device)
+        self.target_words = torch.tensor(target_words, dtype=torch.long, device=device)
+        self._num_samples = len(self.target_words)
+
     def __iter__(self):
         for start in range(0, self._num_samples, self._batch_size):
             end = min(start + self._batch_size, self._num_samples)
