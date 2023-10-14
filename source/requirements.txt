@@ -2,3 +2,4 @@
 pyaml==23.9.7
 numpy==1.26.1
 torch==2.1.0
+gensim==4.3.2
