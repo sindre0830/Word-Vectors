@@ -24,3 +24,4 @@ def run() -> None:
     )
     # get vocabulary
     vocabulary = datahandler.loaders.Vocabulary(add_padding=True, add_unknown=False)
+    vocabulary.build(corpus.words, config.vocabulary_size)

@@ -4,6 +4,7 @@ import nltk
 import nltk.corpus
 import tqdm
 import numpy as np
+import collections
 
 
 class Corpus():
@@ -43,6 +44,12 @@ class Vocabulary():
             self.padding_index = self.add_token(self.padding_token)
         if add_unknown:
             self.unknown_index = self.add_token(self.unknown_token)
+    
+    def build(self, words: list[str], size: int):
+        word_freqs = collections.Counter(words)
+        common_words = word_freqs.most_common(n=size)
+        for word, freq in tqdm.tqdm(common_words, desc="Building vocabulary"):
+            self.add_token(word, freq)
 
     def add_token(self, token: str, freq=1) -> int:
         if token not in self.token_to_index:
