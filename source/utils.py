@@ -41,3 +41,11 @@ def print_operation_status(message: str = "DONE"):
 def print_divider():
     """Print divider in console."""
     print("\n")
+
+
+def save_numpy(filepath: str, collection: np.ndarray):
+    np.save(filepath, collection)
+
+
+def load_numpy(filepath: str) -> np.ndarray:
+    return np.load(filepath)
