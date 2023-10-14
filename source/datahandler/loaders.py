@@ -106,8 +106,8 @@ class DataLoaderCBOW():
         self._batch_size = batch_size
 
     def build(self, sentences: list[list[str]], vocabulary: Vocabulary, window_size: int, device: str):
-        context_words_filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "training_data", "context_words.npy")
-        target_words_filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "training_data", "target_words.npy")
+        context_words_filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "cbow", "training_data", "context_words.npy")
+        target_words_filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "cbow", "training_data", "target_words.npy")
 
         if os.path.exists(context_words_filepath) and os.path.exists(target_words_filepath):
             progress_bar = tqdm.tqdm(desc="Building training data", total=1)
