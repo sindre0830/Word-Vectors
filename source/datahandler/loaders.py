@@ -3,6 +3,7 @@ import itertools
 import nltk
 import nltk.corpus
 import tqdm
+import numpy as np
 
 
 class Corpus():
@@ -43,15 +44,15 @@ class Vocabulary():
         if add_unknown:
             self.unknown_index = self.add_token(self.unknown_token)
 
-    def add_token(self, token: str) -> int:
+    def add_token(self, token: str, freq=1) -> int:
         if token not in self.token_to_index:
             idx = len(self.token_to_index)
             self.token_to_index[token] = idx
             self.index_to_token[idx] = token
-            self.token_freq[token] = 1
+            self.token_freq[token] = freq
         else:
-            self.token_freq[token] += 1
-        self.total_words += 1
+            self.token_freq[token] += freq
+        self.total_words += freq
         return self.get_index(token)
 
     def get_index(self, token: str, default: int = None):
@@ -66,6 +67,11 @@ class Vocabulary():
 
     def get_frequency(self, token: str, default=0) -> int:
         return self.token_freq.get(token, default)
+
+    def subsample_probability(self, token: str, threshold=1e-5):
+        """Compute the probability of keeping the given token."""
+        freq_ratio = self.get_frequency(token) / self.total_words
+        return 1 - np.sqrt(threshold / freq_ratio)
 
     def __len__(self):
         return len(self.token_to_index)
