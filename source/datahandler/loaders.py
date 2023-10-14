@@ -1,15 +1,18 @@
-import utils
-
 import gensim.downloader
 import itertools
 import nltk
 import nltk.corpus
+import tqdm
 
 
 class CorpusLoader():
     def __init__(self) -> None:
         self.corpus = None
         self.is_flattened = False
+    
+    def build(self, pipeline) -> None:
+        for step in tqdm.tqdm(pipeline, desc="Building corpus"):
+            step()
 
     def download(self) -> None:
         self.corpus = gensim.downloader.load("text8")

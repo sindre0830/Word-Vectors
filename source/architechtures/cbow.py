@@ -16,3 +16,8 @@ def run() -> None:
     torch.manual_seed(config.seed)
 
     corpus_loader = datahandler.loaders.CorpusLoader()
+    corpus_loader.build(
+        pipeline=[
+            corpus_loader.download
+        ]
+    )
