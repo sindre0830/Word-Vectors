@@ -24,4 +24,5 @@ def parse_arguments(args: list[str]) -> str:
 def print_commands() -> None:
     msg = "\nList of commands:\n"
     msg += "\t'--help' or '-h': \tShows this information\n"
+    msg += "\t'--cbow' or '-cbow': \tStarts the CBOW program, takes parameters from 'config_cbow.yml' file\n"
     print(msg)
