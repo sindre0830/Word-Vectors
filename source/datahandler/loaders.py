@@ -2,6 +2,8 @@ import utils
 
 import gensim.downloader
 import itertools
+import nltk
+import nltk.corpus
 
 
 class CorpusLoader():
@@ -15,3 +17,8 @@ class CorpusLoader():
     def flatten(self) -> None:
         self.corpus = list(itertools.chain.from_iterable(self.corpus))
         self.is_flat = True
+
+    def filter_stop_words(self) -> None:
+        nltk.download("stopwords", quiet=True)
+        stop_words = nltk.corpus.stopwords.words("english")
+        self.corpus = [word for word in self.corpus if word not in stop_words]
