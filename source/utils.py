@@ -12,3 +12,14 @@ def load_config(filepath: str) -> argparse.Namespace:
         setattr(config, key, value)
 
     return config
+
+
+def parse_arguments(args: list[str]) -> tuple[str, str]:
+    error = None
+    cmd = None
+    args_size = len(args)
+    if (args_size <= 0):
+        error = "No arguments given"
+        return (error, cmd)
+    cmd = args[0]
+    return (error, cmd)

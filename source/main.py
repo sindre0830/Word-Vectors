@@ -1,15 +1,11 @@
-from constants import (
-    PROJECT_DIRECTORY_PATH
-)
 import utils
 
-import os
+import sys
 
 
 def main():
-    config_filepath = os.path.join(PROJECT_DIRECTORY_PATH, "source", "config.yml")
-    config = utils.load_config(config_filepath)
-    print(config.model)
+    (error, cmd) = utils.parse_arguments(args=sys.argv[1:])
+    print(error, cmd)
 
 
 if __name__ == "__main__":
