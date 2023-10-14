@@ -22,3 +22,5 @@ def run() -> None:
             corpus.flatten
         ]
     )
+    # get vocabulary
+    vocabulary = datahandler.loaders.Vocabulary()

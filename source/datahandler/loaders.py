@@ -24,3 +24,8 @@ class Corpus():
         nltk.download("stopwords", quiet=True)
         stop_words = nltk.corpus.stopwords.words("english")
         self.corpus = [[word for word in sentence if word not in stop_words] for sentence in self.sentences]
+
+
+class Vocabulary():
+    def __init__(self) -> None:
+        pass
