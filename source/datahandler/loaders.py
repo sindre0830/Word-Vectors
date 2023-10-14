@@ -82,3 +82,20 @@ class Vocabulary():
 
     def __len__(self):
         return len(self.token_to_index)
+
+
+class DataLoaderCBOW():
+    def __init__(self, batch_size: int) -> None:
+        self.context_words = None
+        self.target_words = None
+    
+        self._num_samples = 0
+        self._batch_size = batch_size
+    
+    def __iter__(self):
+        for start in range(0, self._num_samples, self._batch_size):
+            end = min(start + self._batch_size, self._num_samples)
+            yield (self.context_words[start:end], self.target_words[start:end])
+
+    def __len__(self):
+        return (self._num_samples + self._batch_size - 1) // self._batch_size
