@@ -1,5 +1,7 @@
+import os
 import yaml
 import argparse
+import numpy as np
 
 
 def load_config(filepath: str) -> argparse.Namespace:
@@ -43,8 +45,9 @@ def print_divider():
     print("\n")
 
 
-def save_numpy(filepath: str, collection: np.ndarray):
-    np.save(filepath, collection)
+def save_numpy(filepath: str, object: np.ndarray):
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    np.save(filepath, object)
 
 
 def load_numpy(filepath: str) -> np.ndarray:
