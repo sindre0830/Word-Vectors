@@ -14,10 +14,11 @@ def run() -> None:
     # set seed
     np.random.seed(config.seed)
     torch.manual_seed(config.seed)
-
+    # get corpus
     corpus_loader = datahandler.loaders.CorpusLoader()
     corpus_loader.build(
         pipeline=[
-            corpus_loader.download
+            corpus_loader.download,
+            corpus_loader.flatten
         ]
     )
