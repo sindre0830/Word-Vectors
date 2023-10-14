@@ -8,7 +8,7 @@ import collections
 
 
 class Corpus():
-    def __init__(self) -> None:
+    def __init__(self):
         self.sentences = None
         self.words = None
 
@@ -29,7 +29,7 @@ class Corpus():
 
 
 class Vocabulary():
-    def __init__(self, add_padding: bool, add_unknown: bool) -> None:
+    def __init__(self, add_padding: bool, add_unknown: bool):
         self.token_to_index = {}
         self.index_to_token = {}
         self.token_freq = {}
@@ -45,7 +45,7 @@ class Vocabulary():
         if add_unknown:
             self.unknown_index = self.add_token(self.unknown_token)
     
-    def build(self, words: list[str], size: int):
+    def build(self, words: list[str], size: int) -> None:
         word_freqs = collections.Counter(words)
         common_words = word_freqs.most_common(n=size)
         for word, freq in tqdm.tqdm(common_words, desc="Building vocabulary"):
@@ -62,7 +62,7 @@ class Vocabulary():
         self.total_words += freq
         return self.get_index(token)
 
-    def get_index(self, token: str, default: int = None):
+    def get_index(self, token: str, default: int = None) -> int:
         if default is None:
             default = self.unknown_index
         return self.token_to_index.get(token, default)
@@ -82,6 +82,9 @@ class Vocabulary():
 
     def __len__(self):
         return len(self.token_to_index)
+    
+    def __contains__(self, token: str):
+        return token in self.token_to_index
 
 
 class DataLoaderCBOW():
