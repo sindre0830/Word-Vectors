@@ -14,12 +14,14 @@ def load_config(filepath: str) -> argparse.Namespace:
     return config
 
 
-def parse_arguments(args: list[str]) -> tuple[str, str]:
-    error = None
-    cmd = None
+def parse_arguments(args: list[str]) -> str:
     args_size = len(args)
     if (args_size <= 0):
-        error = "No arguments given"
-        return (error, cmd)
-    cmd = args[0]
-    return (error, cmd)
+        return None
+    return args[0]
+
+
+def print_commands() -> None:
+    msg = "\nList of commands:\n"
+    msg += "\t'--help' or '-h': \tShows this information\n"
+    print(msg)
