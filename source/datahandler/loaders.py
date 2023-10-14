@@ -19,7 +19,7 @@ class CorpusLoader():
 
     def flatten(self) -> None:
         self.corpus = list(itertools.chain.from_iterable(self.corpus))
-        self.is_flat = True
+        self.is_flattened = True
 
     def filter_stop_words(self) -> None:
         nltk.download("stopwords", quiet=True)
