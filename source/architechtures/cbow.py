@@ -23,4 +23,4 @@ def run() -> None:
         ]
     )
     # get vocabulary
-    vocabulary = datahandler.loaders.Vocabulary()
+    vocabulary = datahandler.loaders.Vocabulary(add_padding=True, add_unknown=False)
