@@ -5,7 +5,7 @@ import nltk.corpus
 import tqdm
 
 
-class CorpusLoader():
+class Corpus():
     def __init__(self) -> None:
         self.sentences = None
         self.words = None
