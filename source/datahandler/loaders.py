@@ -54,7 +54,7 @@ class Vocabulary():
             self.padding_index = self.add_token(self.padding_token)
         if add_unknown:
             self.unknown_index = self.add_token(self.unknown_token)
-    
+
     def build(self, words: list[str], size: int) -> None:
         word_freqs = collections.Counter(words)
         common_words = word_freqs.most_common(n=size)
@@ -138,7 +138,7 @@ class DataLoaderCBOW():
 
                 context_words.append(context)
                 target_words.append(vocabulary.get_index(center_word))
-        
+
         context_words = np.array(context_words)
         target_words = np.array(target_words)
         save_numpy(context_words_filepath, context_words)
