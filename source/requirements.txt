@@ -1,2 +1,4 @@
 # python v3.11
 pyaml==23.9.7
+numpy==1.26.1
+torch==2.1.0
