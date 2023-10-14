@@ -26,3 +26,18 @@ def print_commands() -> None:
     msg += "\t'--help' or '-h': \tShows this information\n"
     msg += "\t'--cbow' or '-cbow': \tStarts the CBOW program, takes parameters from 'config_cbow.yml' file\n"
     print(msg)
+
+
+def print_operation(message):
+    """Print operation that allows status message on the same line."""
+    print('{:<60s}'.format(message), end="", flush=True)
+
+
+def print_operation_status(message: str = "DONE"):
+    """Print message in console."""
+    print(message)
+
+
+def print_divider():
+    """Print divider in console."""
+    print("\n")
