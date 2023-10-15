@@ -234,6 +234,20 @@ class ValidationLoader():
 
         save_plot(filepath=os.path.join(PROJECT_DIRECTORY_PATH, "data", self.data_directory, "plots", title + ".png"))
 
+    def evaluate_word_pair_similarity(self, embeddings: np.ndarray):
+        model_scores = []
+        human_scores = []
+        for word1_idx, word2_idx, human_score in self.word_pair_similarity_test:
+            # get vector representations
+            word_vector_1 = embeddings[word1_idx]
+            word_vector_2 = embeddings[word2_idx]
+            # get cosine similarity
+            model_score = cosine_similarity(word_vector_1, word_vector_2)
+            model_scores.append(model_score)
+            human_scores.append(human_score)
+        self.word_pair_similarity_model_score = np.array(model_scores)
+        self.word_pair_similarity_human_score = np.array(human_scores)
+
 
 class DataLoaderCBOW():
     def __init__(self, batch_size: int):
