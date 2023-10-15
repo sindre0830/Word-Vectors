@@ -31,3 +31,11 @@ def run() -> None:
     # get validation data
     validation_dataloader = datahandler.loaders.ValidationLoader(data_directory="cbow")
     validation_dataloader.build(vocabulary)
+
+    print()
+    embeddings = utils.normalize(np.random.rand(10000, 50))
+    validation_dataloader.evaluate_analogies(embeddings)
+    validation_dataloader.evaluate_word_pair_similarity(embeddings)
+
+    validation_dataloader.plot_analogies_rank()
+    validation_dataloader.plot_word_pair_similarity()

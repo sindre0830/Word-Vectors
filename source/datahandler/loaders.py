@@ -234,6 +234,7 @@ class ValidationLoader():
         plt.grid(axis='y')
 
         save_plot(filepath=os.path.join(PROJECT_DIRECTORY_PATH, "data", self.data_directory, "plots", title + ".png"))
+        plt.close()
 
     def evaluate_word_pair_similarity(self, embeddings: np.ndarray, quiet=False):
         model_scores = []
@@ -253,6 +254,19 @@ class ValidationLoader():
     def word_pair_spearman_correlation(self):
         spearman_correlation_coefficient, _ = scipy.stats.spearmanr(self.word_pair_similarity_model_scores, self.word_pair_similarity_human_scores)
         return spearman_correlation_coefficient
+
+    def plot_word_pair_similarity(self):
+        title = "WordSim-353 Evaluation"
+        plt.scatter(self.word_pair_similarity_human_scores, self.word_pair_similarity_model_scores, alpha=0.6, edgecolors="w", linewidth=0.5)
+        plt.title(title)
+        plt.xlabel("Human Judgement Scores")
+        plt.ylabel("Model Cosine Similarity")
+        # line of best fit
+        m, b = np.polyfit(self.word_pair_similarity_human_scores, self.word_pair_similarity_model_scores, 1)
+        plt.plot(self.word_pair_similarity_human_scores, m * self.word_pair_similarity_human_scores + b, color="red")
+
+        save_plot(filepath=os.path.join(PROJECT_DIRECTORY_PATH, "data", self.data_directory, "plots", title + ".png"))
+        plt.close()
 
 
 class DataLoaderCBOW():
