@@ -43,6 +43,9 @@ class ModelCBOW(torch.nn.Module):
     def save(self):
         torch.save(self.state_dict(), self.filepath)
 
+    def load(self):
+        self.load_state_dict(torch.load(self.filepath, map_location=self.device))
+
     def get_embeddings(self) -> np.ndarray:
         embeddings = self.input_embeddings.weight.cpu().detach().numpy()
         embeddings = utils.normalize(embeddings, axis=1, keepdims=True)
