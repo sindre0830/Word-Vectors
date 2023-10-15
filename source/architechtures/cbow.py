@@ -21,7 +21,8 @@ def run() -> None:
         pipeline=[
             corpus.download,
             corpus.flatten
-        ]
+        ],
+        data_directory="cbow"
     )
     # get vocabulary
     vocabulary = datahandler.loaders.Vocabulary(add_padding=True, add_unknown=False)

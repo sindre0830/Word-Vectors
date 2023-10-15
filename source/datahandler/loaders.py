@@ -24,9 +24,11 @@ class Corpus():
         self.sentences = None
         self.words = None
 
-    def build(self, pipeline) -> None:
+    def build(self, pipeline, data_directory: str) -> None:
         for step in tqdm.tqdm(pipeline, desc="Building corpus"):
             step()
+        if self.words is not None:
+            utils.plot_frequency_distribution(self.words, data_directory)
 
     def download(self) -> None:
         self.sentences = list(gensim.downloader.load("text8"))

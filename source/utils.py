@@ -10,6 +10,7 @@ import requests
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import tqdm
+import collections
 
 
 def load_config(filepath: str) -> argparse.Namespace:
@@ -157,6 +158,32 @@ def plot_target_words_occurances(target_words: np.ndarray, data_directory: str):
     plt.ylabel("Frequency")
     plt.title(title)
     plt.xticks(np.unique(target_words))
+    # save plot
+    save_plot(filepath)
+    plt.close()
+
+
+def plot_frequency_distribution(corpus, data_directory: str):
+    # check if it already exists
+    title = "Word Frequencies in Descending Order"
+    filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", data_directory, "plots", f"{title}.png")
+    
+    word_freq = collections.Counter(corpus)
+    word_freq = sorted(word_freq.values(), reverse=True)
+    ranks = np.arange(1, len(word_freq) + 1)
+
+    plt.figure(figsize=(12, 6))
+    # add a Zipfian reference line
+    x = np.linspace(min(ranks), max(ranks), len(word_freq))
+    y = word_freq[0] * (x ** -1)
+    plt.plot(x, y, linestyle="--", color="red", label="Zipfian Reference")
+
+    plt.loglog(ranks, word_freq, label="Actual Data")
+    plt.xlabel("Rank (log scale)")
+    plt.ylabel("Frequency (log scale)")
+    plt.legend()
+    plt.title(title)
+    plt.grid(True)
     # save plot
     save_plot(filepath)
     plt.close()
