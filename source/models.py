@@ -4,7 +4,7 @@ import torch
 import numpy as np
 
 
-class CBOW(torch.nn.Module):
+class ModelCBOW(torch.nn.Module):
     def __init__(
             self,
             device: str,

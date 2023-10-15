@@ -34,7 +34,7 @@ def run() -> None:
     validation_dataloader.build(vocabulary)
     # fit model and get embeddings
     utils.print_divider()
-    model = models.CBOW(config.device, config.vocabulary_size, config.embedding_size, vocabulary.padding_index)
+    model = models.ModelCBOW(config.device, config.vocabulary_size, config.embedding_size, vocabulary.padding_index)
     embeddings = model.get_embeddings()
     utils.print_divider()
     # evaluate embeddings
