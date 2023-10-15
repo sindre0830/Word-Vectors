@@ -83,7 +83,20 @@ def save_plot(filepath: str):
     plt.savefig(filepath, format="png")
 
 
-def set_progressbar_prefix(
+def get_model_progressbar(iter, epoch: int, max_epochs: int) -> tqdm.tqdm:
+    """
+    Generates progressbar for iterable used in model training.
+    """
+    width = len(str(max_epochs))
+    progressbar = tqdm.tqdm(
+        iterable=iter,
+        desc=f"Epoch {(epoch + 1):>{width}}/{max_epochs}"
+    )
+    set_model_progressbar_prefix(progressbar)
+    return progressbar
+
+
+def set_model_progressbar_prefix(
         progressbar: tqdm.tqdm,
         train_loss: float = 0.0,
         best_loss: float = 0.0,
