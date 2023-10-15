@@ -50,3 +50,8 @@ class ModelCBOW(torch.nn.Module):
         embeddings = self.input_embeddings.weight.cpu().detach().numpy()
         embeddings = utils.normalize(embeddings, axis=1, keepdims=True)
         return embeddings
+
+    def forward(self, context_words_idx):
+        context_vector = torch.sum(self.input_embeddings(context_words_idx), dim=1)
+        output = torch.matmul(context_vector, self.output_embeddings.weight.t())
+        return torch.nn.functional.log_softmax(output, dim=1)
