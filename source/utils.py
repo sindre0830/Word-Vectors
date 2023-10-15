@@ -70,3 +70,7 @@ def download_file(url: str, save_path: str):
 
 def normalize(x: np.ndarray, axis = None, keepdims = False) -> np.ndarray:
     return x / np.linalg.norm(x, axis=axis, keepdims=keepdims)
+
+
+def cosine_similarity(x_1: np.ndarray, x_2: np.ndarray) -> float:
+    return np.dot(x_1, x_2)
