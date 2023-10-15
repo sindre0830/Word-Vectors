@@ -146,3 +146,17 @@ def plot_loss_and_accuracy(loss_history: list[float], accuracy_history: list[flo
     # save plot
     save_plot(filepath)
     plt.close()
+
+
+def plot_target_words_occurances(target_words: np.ndarray, data_directory: str):
+    title = "Occurrences of Target Words"
+    filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", data_directory, "plots", f"{title}.png")
+
+    plt.hist(target_words, bins=50, color='skyblue', edgecolor='black')
+    plt.xlabel("Target words")
+    plt.ylabel("Frequency")
+    plt.title(title)
+    plt.xticks(np.unique(target_words))
+    # save plot
+    save_plot(filepath)
+    plt.close()
