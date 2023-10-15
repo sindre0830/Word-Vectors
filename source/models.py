@@ -55,3 +55,7 @@ class ModelCBOW(torch.nn.Module):
         context_vector = torch.sum(self.input_embeddings(context_words_idx), dim=1)
         output = torch.matmul(context_vector, self.output_embeddings.weight.t())
         return torch.nn.functional.log_softmax(output, dim=1)
+    
+    def validate(self, validation_dataloader: datahandler.loaders.ValidationLoader) -> float:
+        validation_dataloader.evaluate_analogies(self.get_embeddings())
+        return validation_dataloader.analogies_accuracy()
