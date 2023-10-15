@@ -199,6 +199,11 @@ class ValidationLoader():
             similarity_rank.append(word4_rank)
         self.analogy_similarity_rank = np.array(similarity_rank)
 
+    def analogies_accuracy(self, k=5):
+        correct_predictions = self.analogy_similarity_rank[self.analogy_similarity_rank <= k]
+        total_predictions = len(self.analogy_similarity_rank)
+        return correct_predictions / total_predictions
+
 
 class DataLoaderCBOW():
     def __init__(self, batch_size: int):
