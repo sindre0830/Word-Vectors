@@ -3,6 +3,7 @@ from constants import (
 )
 import utils
 import datahandler.loaders
+import models
 
 import os
 import numpy as np
@@ -31,6 +32,8 @@ def run() -> None:
     # get validation data
     validation_dataloader = datahandler.loaders.ValidationLoader(data_directory="cbow")
     validation_dataloader.build(vocabulary)
+    # fit model
+    model = models.CBOW(config.device, config.vocabulary_size, config.embedding_size, vocabulary.padding_index)
 
     print()
     embeddings = utils.normalize(np.random.rand(10000, 50))
