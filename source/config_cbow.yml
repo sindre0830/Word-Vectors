@@ -4,4 +4,10 @@ device: "cuda:0"
 vocabulary_size: 10000
 batch_size: 32
 window_size: 2
-embedding_size: 50
+embedding_size: 100
+
+learning_rate: 0.05
+max_epochs: 20
+min_loss_improvement: 0.00001
+patience: 10
+validation_interval: 1

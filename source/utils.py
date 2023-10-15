@@ -8,6 +8,7 @@ import argparse
 import numpy as np
 import requests
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import tqdm
 
 
@@ -94,7 +95,7 @@ def get_model_progressbar(iter, epoch: int, max_epochs: int) -> tqdm.tqdm:
     width = len(str(max_epochs))
     progressbar = tqdm.tqdm(
         iterable=iter,
-        desc=f"Epoch {(epoch + 1):>{width}}/{max_epochs}"
+        desc=f"    Epoch {(epoch + 1):>{width}}/{max_epochs}"
     )
     set_model_progressbar_prefix(progressbar)
     return progressbar
@@ -129,7 +130,7 @@ def plot_loss_and_accuracy(loss_history: list[float], accuracy_history: list[flo
     ax1.set_ylabel("Loss", color="red")
     line1, = ax1.plot(epochs, loss_history, "r-", label="Training Loss")
     ax1.tick_params(axis='y', labelcolor="red")
-    ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax1.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
     # plot accuracy
     ax2 = ax1.twinx()
     ax2.set_ylabel("Accuracy", color="blue")

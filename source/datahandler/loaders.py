@@ -65,6 +65,7 @@ class Vocabulary():
             self.unknown_index = self.add_token(self.unknown_token)
 
     def build(self, words: list[str], size: int) -> None:
+        size -= len(self)
         word_freqs = collections.Counter(words)
         common_words = word_freqs.most_common(n=size)
         for word, freq in tqdm.tqdm(common_words, desc="Building vocabulary"):
