@@ -32,13 +32,17 @@ def run() -> None:
     # get validation data
     validation_dataloader = datahandler.loaders.ValidationLoader(data_directory="cbow")
     validation_dataloader.build(vocabulary)
-    # fit model
+    # fit model and get embeddings
+    utils.print_divider()
     model = models.CBOW(config.device, config.vocabulary_size, config.embedding_size, vocabulary.padding_index)
-
-    print()
-    embeddings = utils.normalize(np.random.rand(10000, 50))
+    embeddings = model.get_embeddings()
+    utils.print_divider()
+    # evaluate embeddings
     validation_dataloader.evaluate_analogies(embeddings)
     validation_dataloader.evaluate_word_pair_similarity(embeddings)
 
-    validation_dataloader.plot_analogies_rank()
+    validation_dataloader.plot_analogies_rank(k=20)
     validation_dataloader.plot_word_pair_similarity()
+    utils.print_divider()
+    print(f"Analogy accuracy: {validation_dataloader.analogies_accuracy():.2f}%")
+    print(f"Spearman correlation coefficient: {validation_dataloader.word_pair_spearman_correlation():.5f}")

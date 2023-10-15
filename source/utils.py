@@ -44,7 +44,7 @@ def print_operation_status(message: str = "DONE"):
 
 def print_divider():
     """Print divider in console."""
-    print("\n")
+    print()
 
 
 def save_numpy(filepath: str, object: np.ndarray):

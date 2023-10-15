@@ -1,4 +1,7 @@
+import utils
+
 import torch
+import numpy as np
 
 
 class CBOW(torch.nn.Module):
@@ -31,3 +34,8 @@ class CBOW(torch.nn.Module):
         # send model to device
         self.device = device
         self.to(self.device)
+
+    def get_embeddings(self) -> np.ndarray:
+        embeddings = self.input_embeddings.weight.cpu().detach().numpy()
+        embeddings = utils.normalize(embeddings, axis=1, keepdims=True)
+        return embeddings
