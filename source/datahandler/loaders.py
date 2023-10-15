@@ -3,7 +3,8 @@ from constants import (
 )
 from utils import (
     save_numpy,
-    load_numpy
+    load_numpy,
+    download_file
 )
 
 import os
@@ -15,6 +16,8 @@ import tqdm
 import numpy as np
 import collections
 import torch
+import zipfile
+import csv
 
 
 class Corpus():
@@ -99,12 +102,80 @@ class Vocabulary():
 
 class ValidationLoader():
     def __init__(self):
-        self.analogies_test: np.ndarray = None
-        self.analogies_similarity: np.ndarray = None
+        self.analogy_test: np.ndarray = None
+        self.analogy_similarity: np.ndarray = None
 
         self.word_pair_similarity_test: np.ndarray = None
         self.word_pair_similarity_human_score: np.ndarray = None
         self.word_pair_similarity_model_score: np.ndarray = None
+
+    def build(self, vocabulary: Vocabulary, data_directory: str):
+        progress_bar = tqdm.tqdm(desc="Building validation data", total=2)
+        # get analogy test set
+        filepath_cache = os.path.join(PROJECT_DIRECTORY_PATH, "data", data_directory, "validation_data", "analogy_test.npy")
+        if os.path.exists(filepath_cache):
+            # load cache
+            self.analogy_test = load_numpy(filepath_cache)
+        else:
+            analogies = []
+            # download raw data
+            filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "analogy_test.txt")
+            download_file("http://download.tensorflow.org/data/questions-words.txt", filepath)
+            with open(filepath, "r") as file:
+                for line in file:
+                    # skip headers
+                    if line.startswith(":"):
+                        continue
+                    # tokenize words
+                    words = line.strip().lower().split()
+                    # convert to words to their index and check that all the words are in the vocabulary
+                    test = [
+                        vocabulary.get_index(word)
+                        for word in words
+                        if word in vocabulary
+                    ]
+                    if len(test) != 4:
+                        continue
+
+                    analogies.append(test)
+            # save to cache
+            self.analogy_test = np.array(analogies)
+            save_numpy(filepath_cache, self.analogy_test)
+        progress_bar.update(1)
+        # get wordsim353 test set
+        filepath_cache = os.path.join(PROJECT_DIRECTORY_PATH, "data", data_directory, "validation_data", "wordsim353_test.npy")
+        if os.path.exists(filepath_cache):
+            # load cache
+            self.word_pair_similarity_test = load_numpy(filepath_cache)
+        else:
+            word_pairs = []
+            # download raw data
+            filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "wordsim353_test", "combined.csv")
+            if not os.path.exists(filepath):
+                filepath_zipped = os.path.join(PROJECT_DIRECTORY_PATH, "data", "wordsim353_test.zip")
+                download_file("https://gabrilovich.com/resources/data/wordsim353/wordsim353.zip", filepath_zipped)
+                with zipfile.ZipFile(filepath_zipped, "r") as file:
+                    file.extractall(os.path.dirname(filepath))
+            # parse raw data
+            with open(filepath, "r") as file:
+                reader = csv.reader(file, delimiter="\t")
+                # skip header
+                next(reader)
+
+                for row in reader:
+                    # tokenize elements and skip unfinished rows
+                    elements = row[0].lower().split(',')
+                    if len(elements) != 3:
+                        continue
+                    # convert to words to their index and check that all the words are in the vocabulary
+                    word1, word2, sim_score = elements
+                    if word1 not in vocabulary or word2 not in vocabulary:
+                        continue
+                    word_pairs.append([vocabulary.get_index(word1), vocabulary.get_index(word2), sim_score])
+            # save to cache
+            self.word_pair_similarity_test = np.array(word_pairs)
+            save_numpy(filepath_cache, self.word_pair_similarity_test)
+        progress_bar.update(1)
 
 
 class DataLoaderCBOW():
