@@ -2,6 +2,7 @@ import os
 import yaml
 import argparse
 import numpy as np
+import requests
 
 
 def load_config(filepath: str) -> argparse.Namespace:
@@ -52,3 +53,16 @@ def save_numpy(filepath: str, object: np.ndarray):
 
 def load_numpy(filepath: str) -> np.ndarray:
     return np.load(filepath)
+
+
+def download_file(url: str, save_path: str):
+    if os.path.exists(save_path):
+        return
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+    response = requests.get(url, allow_redirects=True)
+    # ensure the request was successful
+    response.raise_for_status()
+    
+    with open(save_path, 'wb') as file:
+        file.write(response.content)
