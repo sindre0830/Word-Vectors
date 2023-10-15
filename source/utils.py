@@ -4,6 +4,7 @@ import argparse
 import numpy as np
 import requests
 import matplotlib.pyplot as plt
+import tqdm
 
 
 def load_config(filepath: str) -> argparse.Namespace:
@@ -80,3 +81,20 @@ def cosine_similarity(x_1: np.ndarray, x_2: np.ndarray):
 def save_plot(filepath: str):
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     plt.savefig(filepath, format="png")
+
+
+def set_progressbar_prefix(
+        progressbar: tqdm.tqdm,
+        train_loss: float = 0.0,
+        best_loss: float = 0.0,
+        train_acc: float = 0.0,
+        best_acc: float = 0.0
+    ):
+    """
+    Set prefix in progressbar and update output.
+    """
+    train_loss_str = f"loss: {train_loss:.5f}"
+    best_loss_str = f"best loss: {best_loss:.5f}"
+    train_acc_str = f"acc: {train_acc:.5f}"
+    best_acc_str = f"best acc: {best_acc:.5f}"
+    progressbar.set_postfix_str(f"{train_loss_str}, {best_loss_str}, {train_acc_str}, {best_acc_str}")
