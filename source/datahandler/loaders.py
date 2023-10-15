@@ -323,3 +323,12 @@ class DataLoaderCBOW():
 
     def __len__(self):
         return (self._num_samples + self._batch_size - 1) // self._batch_size
+
+
+class DataLoaderSkipGram():
+    def __init__(self, batch_size: int):
+        self.context_words = None
+        self.target_words = None
+
+        self._num_samples = 0
+        self._batch_size = batch_size
