@@ -3,6 +3,7 @@ import yaml
 import argparse
 import numpy as np
 import requests
+import matplotlib.pyplot as plt
 
 
 def load_config(filepath: str) -> argparse.Namespace:
@@ -74,3 +75,8 @@ def normalize(x: np.ndarray, axis = None, keepdims = False) -> np.ndarray:
 
 def cosine_similarity(x_1: np.ndarray, x_2: np.ndarray):
     return np.dot(x_1, x_2)
+
+
+def save_plot(filepath: str):
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    plt.savefig(filepath, format="png")
