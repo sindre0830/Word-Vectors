@@ -27,3 +27,6 @@ def run() -> None:
     # get vocabulary
     vocabulary = datahandler.loaders.Vocabulary(add_padding=True, add_unknown=False)
     vocabulary.build(corpus.words, config.vocabulary_size)
+    # get training data
+    training_dataloader = datahandler.loaders.DataLoaderSkipGram(config.batch_size)
+    training_dataloader.build(corpus.sentences, vocabulary, config.window_size, config.device)
