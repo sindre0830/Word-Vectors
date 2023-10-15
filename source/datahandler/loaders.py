@@ -177,15 +177,15 @@ class ValidationLoader():
                     word1, word2, sim_score = elements
                     if word1 not in vocabulary or word2 not in vocabulary:
                         continue
-                    word_pairs.append([vocabulary.get_index(word1), vocabulary.get_index(word2), sim_score])
+                    word_pairs.append([float(vocabulary.get_index(word1)), float(vocabulary.get_index(word2)), float(sim_score)])
             # save to cache
             self.word_pair_similarity_test = np.array(word_pairs)
             save_numpy(filepath_cache, self.word_pair_similarity_test)
         progress_bar.update(1)
 
-    def evaluate_analogies(self, embeddings: np.ndarray):
+    def evaluate_analogies(self, embeddings: np.ndarray, quiet=False):
         similarity_rank = []
-        for word1_idx, word2_idx, word3_idx, word4_idx in self.analogy_test:
+        for word1_idx, word2_idx, word3_idx, word4_idx in tqdm.tqdm(self.analogy_test, desc="Evaluating Google Analogy test", disable=quiet):
             # get vector representations
             word_vector_1 = embeddings[word1_idx]
             word_vector_2 = embeddings[word2_idx]
@@ -210,7 +210,7 @@ class ValidationLoader():
         if self.analogy_similarity_rank is None:
             raise ValueError("You need to run evaluate_analogies first")
 
-        correct_predictions = self.analogy_similarity_rank[self.analogy_similarity_rank <= k]
+        correct_predictions = self.analogy_similarity_rank[self.analogy_similarity_rank < k]
         total_predictions = len(self.analogy_similarity_rank)
         return len(correct_predictions) / total_predictions
 
@@ -235,13 +235,14 @@ class ValidationLoader():
 
         save_plot(filepath=os.path.join(PROJECT_DIRECTORY_PATH, "data", self.data_directory, "plots", title + ".png"))
 
-    def evaluate_word_pair_similarity(self, embeddings: np.ndarray):
+    def evaluate_word_pair_similarity(self, embeddings: np.ndarray, quiet=False):
         model_scores = []
         human_scores = []
-        for word1_idx, word2_idx, human_score in self.word_pair_similarity_test:
+        #print(self.word_pair_similarity_test)
+        for word1_idx, word2_idx, human_score in tqdm.tqdm(self.word_pair_similarity_test, desc="Evaluating WordSim353 test", disable=quiet):
             # get vector representations
-            word_vector_1 = embeddings[word1_idx]
-            word_vector_2 = embeddings[word2_idx]
+            word_vector_1 = embeddings[int(word1_idx)]
+            word_vector_2 = embeddings[int(word2_idx)]
             # get cosine similarity
             model_score = cosine_similarity(word_vector_1, word_vector_2)
             model_scores.append(model_score)
