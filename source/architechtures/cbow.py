@@ -50,5 +50,5 @@ def run() -> None:
     utils.print_divider()
     validation_dataloader.plot_analogies_rank(k=20)
     validation_dataloader.plot_word_pair_similarity()
-    print(f"Analogy accuracy: {validation_dataloader.analogies_accuracy():.2f}%")
+    print(f"Analogy accuracy: {(validation_dataloader.analogies_accuracy() * 100):.2f}%")
     print(f"Spearman correlation coefficient: {validation_dataloader.word_pair_spearman_correlation():.5f}")

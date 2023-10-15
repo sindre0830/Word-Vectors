@@ -1,14 +1,7 @@
 from constants import (
     PROJECT_DIRECTORY_PATH
 )
-from utils import (
-    save_numpy,
-    load_numpy,
-    download_file,
-    normalize,
-    cosine_similarity,
-    save_plot
-)
+import utils
 
 import os
 import gensim.downloader
@@ -95,10 +88,9 @@ class Vocabulary():
     def get_frequency(self, token: str, default=0) -> int:
         return self.token_freq.get(token, default)
 
-    def subsample_probability(self, token: str, threshold=1e-5):
-        """Compute the probability of keeping the given token."""
-        freq_ratio = self.get_frequency(token) / self.total_words
-        return 1 - np.sqrt(threshold / freq_ratio)
+    def subsample(self, token: str, threshold=1e-5) -> bool:
+        prob = (np.sqrt(self.get_frequency(token) / (threshold * self.total_words)) + 1) * (threshold * self.total_words) / self.get_frequency(token)
+        return (prob < np.random.rand())
 
     def __len__(self):
         return len(self.token_to_index)
@@ -124,12 +116,12 @@ class ValidationLoader():
         filepath_cache = os.path.join(PROJECT_DIRECTORY_PATH, "data", self.data_directory, "validation_data", "analogy_test.npy")
         if os.path.exists(filepath_cache):
             # load cache
-            self.analogy_test = load_numpy(filepath_cache)
+            self.analogy_test = utils.load_numpy(filepath_cache)
         else:
             analogies = []
             # download raw data
             filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "analogy_test.txt")
-            download_file("http://download.tensorflow.org/data/questions-words.txt", filepath)
+            utils.download_file("http://download.tensorflow.org/data/questions-words.txt", filepath)
             with open(filepath, "r") as file:
                 for line in file:
                     # skip headers
@@ -148,20 +140,20 @@ class ValidationLoader():
                     analogies.append(test)
             # save to cache
             self.analogy_test = np.array(analogies)
-            save_numpy(filepath_cache, self.analogy_test)
+            utils.save_numpy(filepath_cache, self.analogy_test)
         progress_bar.update(1)
         # get wordsim353 test set
         filepath_cache = os.path.join(PROJECT_DIRECTORY_PATH, "data", self.data_directory, "validation_data", "wordsim353_test.npy")
         if os.path.exists(filepath_cache):
             # load cache
-            self.word_pair_similarity_test = load_numpy(filepath_cache)
+            self.word_pair_similarity_test = utils.load_numpy(filepath_cache)
         else:
             word_pairs = []
             # download raw data
             filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "wordsim353_test", "combined.csv")
             if not os.path.exists(filepath):
                 filepath_zipped = os.path.join(PROJECT_DIRECTORY_PATH, "data", "wordsim353_test.zip")
-                download_file("https://gabrilovich.com/resources/data/wordsim353/wordsim353.zip", filepath_zipped)
+                utils.download_file("https://gabrilovich.com/resources/data/wordsim353/wordsim353.zip", filepath_zipped)
                 with zipfile.ZipFile(filepath_zipped, "r") as file:
                     file.extractall(os.path.dirname(filepath))
             # parse raw data
@@ -181,7 +173,7 @@ class ValidationLoader():
                     word_pairs.append([float(vocabulary.get_index(word1)), float(vocabulary.get_index(word2)), float(sim_score)])
             # save to cache
             self.word_pair_similarity_test = np.array(word_pairs)
-            save_numpy(filepath_cache, self.word_pair_similarity_test)
+            utils.save_numpy(filepath_cache, self.word_pair_similarity_test)
         progress_bar.update(1)
 
     def evaluate_analogies(self, embeddings: np.ndarray, quiet=False):
@@ -193,9 +185,9 @@ class ValidationLoader():
             word_vector_3 = embeddings[word3_idx]
             # compute the analogy vector
             analogy_vector = word_vector_1 - word_vector_2
-            predicted_vector = normalize(word_vector_3 + analogy_vector)
+            predicted_vector = utils.normalize(word_vector_3 + analogy_vector)
             # get cosine similarity scores
-            cosine_similarities: np.ndarray = cosine_similarity(embeddings, predicted_vector)
+            cosine_similarities: np.ndarray = utils.cosine_similarity(embeddings, predicted_vector)
             # exclude input words from similarity scores
             cosine_similarities[word1_idx] = -float("inf")
             cosine_similarities[word2_idx] = -float("inf")
@@ -234,7 +226,7 @@ class ValidationLoader():
         plt.xticks(range(1, k + 1))
         plt.grid(axis='y')
 
-        save_plot(filepath=os.path.join(PROJECT_DIRECTORY_PATH, "data", self.data_directory, "plots", title + ".png"))
+        utils.save_plot(filepath=os.path.join(PROJECT_DIRECTORY_PATH, "data", self.data_directory, "plots", title + ".png"))
         plt.close()
 
     def evaluate_word_pair_similarity(self, embeddings: np.ndarray, quiet=False):
@@ -246,7 +238,7 @@ class ValidationLoader():
             word_vector_1 = embeddings[int(word1_idx)]
             word_vector_2 = embeddings[int(word2_idx)]
             # get cosine similarity
-            model_score = cosine_similarity(word_vector_1, word_vector_2)
+            model_score = utils.cosine_similarity(word_vector_1, word_vector_2)
             model_scores.append(model_score)
             human_scores.append(human_score)
         self.word_pair_similarity_model_scores = np.array(model_scores)
@@ -266,7 +258,7 @@ class ValidationLoader():
         m, b = np.polyfit(self.word_pair_similarity_human_scores, self.word_pair_similarity_model_scores, 1)
         plt.plot(self.word_pair_similarity_human_scores, m * self.word_pair_similarity_human_scores + b, color="red")
 
-        save_plot(filepath=os.path.join(PROJECT_DIRECTORY_PATH, "data", self.data_directory, "plots", title + ".png"))
+        utils.save_plot(filepath=os.path.join(PROJECT_DIRECTORY_PATH, "data", self.data_directory, "plots", title + ".png"))
         plt.close()
 
 
@@ -284,8 +276,8 @@ class DataLoaderCBOW():
 
         if os.path.exists(context_words_filepath) and os.path.exists(target_words_filepath):
             progress_bar = tqdm.tqdm(desc="Building training data", total=1)
-            self.context_words = torch.tensor(load_numpy(context_words_filepath), dtype=torch.long, device=device)
-            self.target_words = torch.tensor(load_numpy(target_words_filepath), dtype=torch.long, device=device)
+            self.context_words = torch.tensor(utils.load_numpy(context_words_filepath), dtype=torch.long, device=device)
+            self.target_words = torch.tensor(utils.load_numpy(target_words_filepath), dtype=torch.long, device=device)
             self._num_samples = len(self.target_words)
             progress_bar.update(1)
             return
@@ -294,7 +286,7 @@ class DataLoaderCBOW():
         target_words = []
         for sentence in tqdm.tqdm(sentences, desc="Building training data"):
             for center_position, center_word in enumerate(sentence):
-                if center_word not in vocabulary:
+                if center_word not in vocabulary or vocabulary.subsample(center_word, threshold=1e-5):
                     continue
                 # define the boundaries of the window
                 start_position = max(0, center_position - window_size)
@@ -314,12 +306,13 @@ class DataLoaderCBOW():
 
         context_words = np.array(context_words)
         target_words = np.array(target_words)
-        save_numpy(context_words_filepath, context_words)
-        save_numpy(target_words_filepath, target_words)
+        utils.save_numpy(context_words_filepath, context_words)
+        utils.save_numpy(target_words_filepath, target_words)
 
         self.context_words = torch.tensor(context_words, dtype=torch.long, device=device)
         self.target_words = torch.tensor(target_words, dtype=torch.long, device=device)
         self._num_samples = len(self.target_words)
+        utils.plot_target_words_occurances(target_words, data_directory="cbow")
 
     def __iter__(self):
         for start in range(0, self._num_samples, self._batch_size):
