@@ -97,6 +97,16 @@ class Vocabulary():
         return token in self.token_to_index
 
 
+class ValidationLoader():
+    def __init__(self):
+        self.analogies_test: np.ndarray = None
+        self.analogies_similarity: np.ndarray = None
+
+        self.word_pair_similarity_test: np.ndarray = None
+        self.word_pair_similarity_human_score: np.ndarray = None
+        self.word_pair_similarity_model_score: np.ndarray = None
+
+
 class DataLoaderCBOW():
     def __init__(self, batch_size: int):
         self.context_words = None
