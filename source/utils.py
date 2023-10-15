@@ -66,3 +66,7 @@ def download_file(url: str, save_path: str):
     
     with open(save_path, 'wb') as file:
         file.write(response.content)
+
+
+def normalize(x: np.ndarray, axis = None, keepdims = False) -> np.ndarray:
+    return x / np.linalg.norm(x, axis=axis, keepdims=keepdims)
