@@ -1,5 +1,6 @@
 import utils
 import architechtures.cbow
+import architechtures.skipgram
 
 import sys
 
@@ -14,6 +15,10 @@ def main():
         case "--cbow" | "-cbow":
             print("Starting CBOW program...\n")
             architechtures.cbow.run()
+            return
+        case "--skipgram" | "-sg":
+            print("Starting skip-gram program...\n")
+            architechtures.skipgram.run()
             return
         case _:
             print("Error: Unknown command.")
