@@ -4,7 +4,9 @@ from constants import (
 from utils import (
     save_numpy,
     load_numpy,
-    download_file
+    download_file,
+    normalize,
+    cosine_similarity
 )
 
 import os
@@ -103,7 +105,7 @@ class Vocabulary():
 class ValidationLoader():
     def __init__(self):
         self.analogy_test: np.ndarray = None
-        self.analogy_similarity: np.ndarray = None
+        self.analogy_similarity_rank: np.ndarray = None
 
         self.word_pair_similarity_test: np.ndarray = None
         self.word_pair_similarity_human_score: np.ndarray = None
@@ -136,7 +138,6 @@ class ValidationLoader():
                     ]
                     if len(test) != 4:
                         continue
-
                     analogies.append(test)
             # save to cache
             self.analogy_test = np.array(analogies)
@@ -161,7 +162,6 @@ class ValidationLoader():
                 reader = csv.reader(file, delimiter="\t")
                 # skip header
                 next(reader)
-
                 for row in reader:
                     # tokenize elements and skip unfinished rows
                     elements = row[0].lower().split(',')
@@ -176,6 +176,28 @@ class ValidationLoader():
             self.word_pair_similarity_test = np.array(word_pairs)
             save_numpy(filepath_cache, self.word_pair_similarity_test)
         progress_bar.update(1)
+
+    def evaluate_analogies(self, embeddings: np.ndarray):
+        similarity_rank = []
+        for word1_idx, word2_idx, word3_idx, word4_idx in self.analogy_test:
+            # get vector representations
+            word_vector_1 = embeddings[word1_idx]
+            word_vector_2 = embeddings[word2_idx]
+            word_vector_3 = embeddings[word3_idx]
+            # compute the analogy vector
+            analogy_vector = word_vector_1 - word_vector_2
+            predicted_vector = normalize(word_vector_3 + analogy_vector)
+            # get cosine similarity scores
+            cosine_similarities: np.ndarray = cosine_similarity(embeddings, predicted_vector)
+            # exclude input words from similarity scores
+            cosine_similarities[word1_idx] = -float("inf")
+            cosine_similarities[word2_idx] = -float("inf")
+            cosine_similarities[word3_idx] = -float("inf")
+            # get rank of word4 in similarity scores
+            sorted_indicies = cosine_similarities.argsort()[::-1]
+            word4_rank = np.where(sorted_indicies == word4_idx)[0][0]
+            similarity_rank.append(word4_rank)
+        self.analogy_similarity_rank = np.array(similarity_rank)
 
 
 class DataLoaderCBOW():
