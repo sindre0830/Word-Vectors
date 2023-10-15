@@ -23,6 +23,7 @@ import zipfile
 import csv
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import scipy.stats
 
 
 class Corpus():
@@ -113,8 +114,8 @@ class ValidationLoader():
         self.analogy_similarity_rank: np.ndarray = None
 
         self.word_pair_similarity_test: np.ndarray = None
-        self.word_pair_similarity_human_score: np.ndarray = None
-        self.word_pair_similarity_model_score: np.ndarray = None
+        self.word_pair_similarity_human_scores: np.ndarray = None
+        self.word_pair_similarity_model_scores: np.ndarray = None
 
     def build(self, vocabulary: Vocabulary):
         progress_bar = tqdm.tqdm(desc="Building validation data", total=2)
@@ -245,8 +246,12 @@ class ValidationLoader():
             model_score = cosine_similarity(word_vector_1, word_vector_2)
             model_scores.append(model_score)
             human_scores.append(human_score)
-        self.word_pair_similarity_model_score = np.array(model_scores)
-        self.word_pair_similarity_human_score = np.array(human_scores)
+        self.word_pair_similarity_model_scores = np.array(model_scores)
+        self.word_pair_similarity_human_scores = np.array(human_scores)
+
+    def word_pair_spearman_correlation(self):
+        spearman_correlation_coefficient, _ = scipy.stats.spearmanr(self.word_pair_similarity_model_scores, self.word_pair_similarity_human_scores)
+        return spearman_correlation_coefficient
 
 
 class DataLoaderCBOW():
