@@ -6,7 +6,8 @@ from utils import (
     load_numpy,
     download_file,
     normalize,
-    cosine_similarity
+    cosine_similarity,
+    save_plot
 )
 
 import os
@@ -20,6 +21,8 @@ import collections
 import torch
 import zipfile
 import csv
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 
 
 class Corpus():
@@ -103,7 +106,9 @@ class Vocabulary():
 
 
 class ValidationLoader():
-    def __init__(self):
+    def __init__(self, data_directory: str):
+        self.data_directory = data_directory
+
         self.analogy_test: np.ndarray = None
         self.analogy_similarity_rank: np.ndarray = None
 
@@ -111,10 +116,10 @@ class ValidationLoader():
         self.word_pair_similarity_human_score: np.ndarray = None
         self.word_pair_similarity_model_score: np.ndarray = None
 
-    def build(self, vocabulary: Vocabulary, data_directory: str):
+    def build(self, vocabulary: Vocabulary):
         progress_bar = tqdm.tqdm(desc="Building validation data", total=2)
         # get analogy test set
-        filepath_cache = os.path.join(PROJECT_DIRECTORY_PATH, "data", data_directory, "validation_data", "analogy_test.npy")
+        filepath_cache = os.path.join(PROJECT_DIRECTORY_PATH, "data", self.data_directory, "validation_data", "analogy_test.npy")
         if os.path.exists(filepath_cache):
             # load cache
             self.analogy_test = load_numpy(filepath_cache)
@@ -144,7 +149,7 @@ class ValidationLoader():
             save_numpy(filepath_cache, self.analogy_test)
         progress_bar.update(1)
         # get wordsim353 test set
-        filepath_cache = os.path.join(PROJECT_DIRECTORY_PATH, "data", data_directory, "validation_data", "wordsim353_test.npy")
+        filepath_cache = os.path.join(PROJECT_DIRECTORY_PATH, "data", self.data_directory, "validation_data", "wordsim353_test.npy")
         if os.path.exists(filepath_cache):
             # load cache
             self.word_pair_similarity_test = load_numpy(filepath_cache)
@@ -200,9 +205,34 @@ class ValidationLoader():
         self.analogy_similarity_rank = np.array(similarity_rank)
 
     def analogies_accuracy(self, k=5):
+        # ensure the ranks array is provided
+        if self.analogy_similarity_rank is None:
+            raise ValueError("You need to run evaluate_analogies first")
+
         correct_predictions = self.analogy_similarity_rank[self.analogy_similarity_rank <= k]
         total_predictions = len(self.analogy_similarity_rank)
-        return correct_predictions / total_predictions
+        return len(correct_predictions) / total_predictions
+
+    def plot_analogies_rank(self, k=5):
+        # ensure the ranks array is provided
+        if self.analogy_similarity_rank is None:
+            raise ValueError("You need to run evaluate_analogies first")
+
+        rank_counts = [np.sum(self.analogy_similarity_rank == i) for i in range(k)]
+
+        title = f"Rank Distribution of Correct Analogy"
+
+        _, ax = plt.subplots()
+        ax.bar(range(1, k + 1), rank_counts)
+        ax.set_xlabel("Rank")
+        ax.set_ylabel("Number of Occurrences")
+        ax.set_title(title)
+        ax.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
+        ax.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
+        plt.xticks(range(1, k + 1))
+        plt.grid(axis='y')
+
+        save_plot(filepath=os.path.join(PROJECT_DIRECTORY_PATH, "data", self.data_directory, "plots", title + ".png"))
 
 
 class DataLoaderCBOW():

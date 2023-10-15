@@ -29,5 +29,5 @@ def run() -> None:
     training_dataloader = datahandler.loaders.DataLoaderCBOW(config.batch_size)
     training_dataloader.build(corpus.sentences, vocabulary, config.window_size, config.device)
     # get validation data
-    validation_dataloader = datahandler.loaders.ValidationLoader()
-    validation_dataloader.build(vocabulary, data_directory="cbow")
+    validation_dataloader = datahandler.loaders.ValidationLoader(data_directory="cbow")
+    validation_dataloader.build(vocabulary)
