@@ -1,3 +1,7 @@
+from constants import (
+    PROJECT_DIRECTORY_PATH
+)
+
 import os
 import yaml
 import argparse
@@ -111,3 +115,33 @@ def set_model_progressbar_prefix(
     train_acc_str = f"acc: {train_acc:.5f}"
     best_acc_str = f"best acc: {best_acc:.5f}"
     progressbar.set_postfix_str(f"{train_loss_str}, {best_loss_str}, {train_acc_str}, {best_acc_str}")
+
+
+def plot_loss_and_accuracy(loss_history: list[float], accuracy_history: list[float], data_directory: str):
+    title = "Training Metrics over Epochs"
+    filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", data_directory, "plots", f"{title}.png")
+
+    epochs = range(1, len(loss_history) + 1)
+
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    # plot loss
+    ax1.set_xlabel("Epochs")
+    ax1.set_ylabel("Loss", color="red")
+    line1, = ax1.plot(epochs, loss_history, "r-", label="Training Loss")
+    ax1.tick_params(axis='y', labelcolor="red")
+    ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
+    # plot accuracy
+    ax2 = ax1.twinx()
+    ax2.set_ylabel("Accuracy", color="blue")
+    line2, = ax2.plot(epochs, accuracy_history, "b-", label="Training Accuracy")
+    ax2.tick_params(axis='y', labelcolor="blue")
+    # combine legends
+    lines = [line1, line2]
+    labels = [l.get_label() for l in lines]
+    ax1.legend(lines, labels, loc="upper left")
+
+    fig.tight_layout(pad=3.0)
+    plt.title(title)
+    # save plot
+    save_plot(filepath)
+    plt.close()
