@@ -17,6 +17,7 @@ import csv
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import scipy.stats
+import scipy.sparse
 
 
 class Corpus():
@@ -375,6 +376,23 @@ class DataLoaderSkipGram():
         for start in range(0, self._num_samples, self._batch_size):
             end = min(start + self._batch_size, self._num_samples)
             yield (self.context_words[start:end], self.target_words[start:end])
+
+    def __len__(self):
+        return (self._num_samples + self._batch_size - 1) // self._batch_size
+
+
+class DataLoaderCooccurrence:
+    def __init__(self, batch_size: int):
+        self._token_ids = None
+        self._cooccurr_counts = None
+        
+        self._num_samples = len(self._token_ids)
+        self._batch_size = batch_size
+
+    def __iter__(self):
+        for start in range(0, self._num_samples, self._batch_size):
+            end = min(start + self._batch_size, self._num_samples)
+            yield (self._token_ids[start:end], self._cooccurr_counts[start:end])
 
     def __len__(self):
         return (self._num_samples + self._batch_size - 1) // self._batch_size
