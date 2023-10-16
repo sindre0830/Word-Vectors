@@ -12,6 +12,7 @@ import matplotlib.ticker as ticker
 import tqdm
 import collections
 import scipy.sparse
+import sklearn.manifold
 
 
 def load_config(filepath: str) -> argparse.Namespace:
@@ -167,7 +168,6 @@ def plot_target_words_occurances(target_words: np.ndarray, data_directory: str):
 
 
 def plot_frequency_distribution(corpus, data_directory: str):
-    # check if it already exists
     title = "Word Frequencies in Descending Order"
     filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", data_directory, "plots", f"{title}.png")
 
@@ -201,3 +201,22 @@ def save_npz(filepath: str, x):
 def load_npz(filepath: str):
     with open(filepath, "rb") as file:
         return scipy.sparse.load_npz(file)
+
+
+def plot_embeddings(embeddings: np.ndarray, data_directory: str):
+    title = "Word embeddings visualized with t-SNE"
+    filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", data_directory, "plots", f"{title}.png")
+
+    tsne = sklearn.manifold.TSNE(n_components=2, random_state=0)
+    embeddings_2d = tsne.fit_transform(embeddings)
+
+    plt.figure(figsize=(20, 20))
+    plt.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], marker='o', c='blue')
+
+    plt.title(title)
+    plt.xlabel("t-SNE dimension 1")
+    plt.ylabel("t-SNE dimension 2")
+    plt.grid(True)
+    # save plot
+    save_plot(filepath)
+    plt.close()

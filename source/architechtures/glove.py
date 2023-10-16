@@ -53,3 +53,4 @@ def run() -> None:
     validation_dataloader.plot_word_pair_similarity()
     print(f"Analogy accuracy: {(validation_dataloader.analogies_accuracy() * 100):.2f}%")
     print(f"Spearman correlation coefficient: {validation_dataloader.word_pair_spearman_correlation():.5f}")
+    utils.plot_embeddings(embeddings, data_directory="glove")

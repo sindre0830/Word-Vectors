@@ -6,7 +6,7 @@ batch_size: 128
 window_size: 2
 embedding_size: 100
 
-learning_rate: 0.001
+learning_rate: 0.05
 max_epochs: 20
 min_loss_improvement: 0.00001
 patience: 10
