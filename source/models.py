@@ -155,7 +155,7 @@ class ModelGloVe(torch.nn.Module):
                     # add to history and plot
                     loss_history.append(train_loss)
                     acc_history.append(train_acc)
-                    utils.plot_loss_and_accuracy(loss_history, acc_history, data_directory="cbow")
+                    utils.plot_loss_and_accuracy(loss_history, acc_history, data_directory="glove")
                     # update information with current values
                     utils.set_model_progressbar_prefix(progressbar, train_loss, best_loss, train_acc, best_acc)
             # check for early stopping
