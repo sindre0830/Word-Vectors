@@ -22,7 +22,7 @@ class ModelGloVe(torch.nn.Module):
         ):
         super().__init__()
         self.device = device
-        self.filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "cbow", "model.pt")
+        self.filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "glove", "model.pt")
         self.x_max = x_max
         self.alpha = alpha
         self.padding_idx = padding_idx
@@ -81,6 +81,91 @@ class ModelGloVe(torch.nn.Module):
     def validate(self, validation_dataloader: datahandler.loaders.ValidationLoader) -> float:
         validation_dataloader.evaluate_analogies(self.get_embeddings(), quiet=True)
         return validation_dataloader.analogies_accuracy()
+    
+    def fit(
+            self,
+            training_dataloader: datahandler.loaders.DataLoaderCooccurrence,
+            validation_dataloader: datahandler.loaders.ValidationLoader,
+            learning_rate: float,
+            max_epochs: int,
+            min_loss_improvement: float,
+            patience: int,
+            validation_interval: int
+        ):
+        # check if cache exists
+        if os.path.exists(self.filepath):
+            progress_bar = tqdm.tqdm(desc="Loading cached model", total=1)
+            self.load()
+            progress_bar.update(1)
+            return
+        print("Training model:")
+        loss_history = []
+        acc_history = []
+        dataset_size = len(training_dataloader)
+        last_batch_index = dataset_size - 1
+        # set optimizer
+        optimizer_embedding_layers = torch.optim.SparseAdam(list(self.parameters())[2:], lr=learning_rate)
+        optimizer_bias_layers = torch.optim.AdamW(list(self.parameters())[:2], lr=(learning_rate / 100))
+        # loop through each epoch
+        best_loss = float("inf")
+        best_acc = -float("inf")
+        epochs_without_improvement = 0
+        for epoch in range(max_epochs):
+            total_loss = 0.0
+            # define the progressbar
+            progressbar = utils.get_model_progressbar(training_dataloader, epoch, max_epochs)
+            # set model to training mode
+            self.train()
+            # loop through the dataset
+            for idx, batch in enumerate(progressbar):
+                # clear gradients
+                optimizer_embedding_layers.zero_grad()
+                optimizer_bias_layers.zero_grad()
+                # unpack batch data and send to device
+                word_index: torch.Tensor = batch[0][:, 0]
+                context_index: torch.Tensor = batch[0][:, 1]
+                cooccurrence_count: torch.Tensor = batch[1]
+                # compute gradients
+                loss: torch.Tensor = self(word_index, context_index, cooccurrence_count)
+                total_loss += loss.item()
+                # apply gradients
+                loss.backward()
+                optimizer_embedding_layers.step()
+                optimizer_bias_layers.step()
+                # branch if on last iteration
+                if idx == last_batch_index:
+                    # update early stopping and save model
+                    train_loss = total_loss / (idx + 1)
+                    if train_loss <= (best_loss - min_loss_improvement):
+                        best_loss = train_loss
+                        epochs_without_improvement = 0
+                        # save best model
+                        self.save()
+                    else:
+                        epochs_without_improvement += 1
+                    # validate model every n epochs
+                    if epoch == 0 or (epoch + 1) == max_epochs or (epoch + 1) % validation_interval == 0:
+                        self.eval()
+                        train_acc = self.validate(validation_dataloader)
+                        if train_acc >= best_acc:
+                            best_acc = train_acc
+                        self.train()
+                    else:
+                        train_acc = acc_history[-1]
+                    # add to history and plot
+                    loss_history.append(train_loss)
+                    acc_history.append(train_acc)
+                    utils.plot_loss_and_accuracy(loss_history, acc_history, data_directory="cbow")
+                    # update information with current values
+                    utils.set_model_progressbar_prefix(progressbar, train_loss, best_loss, train_acc, best_acc)
+            # check for early stopping
+            if epochs_without_improvement >= patience:
+                break
+        # load the best model from training
+        self.load()
+        # empty GPU cache
+        if "cuda" in self.device:
+            torch.cuda.empty_cache()
 
 
 class ModelCBOW(torch.nn.Module):
