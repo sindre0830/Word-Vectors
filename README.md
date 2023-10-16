@@ -2,6 +2,9 @@
 
 ## Overview
 This repository implements different architectures for training word embeddings. The architectures include Continuous Bag-of-Words (CBOW), skip-gram, and Global Vectors for Word Representation (GloVe). The flake8 dataset is used as training data, while the Google Analogy dataset and the WordSim353 dataset is used for validating the word embeddings.
+- [Continuous Bag-of-Words (CBOW)](source/architechtures/cbow.py) architecture implementation
+- [Skip-gram](source/architechtures/skipgram.py) architecture implementation
+- [Global Vectors for Word Representation (GloVe)](source/architechtures/glove.py) architecture implementation
 
 ## Setup
 0. Install required python version **3.11**
