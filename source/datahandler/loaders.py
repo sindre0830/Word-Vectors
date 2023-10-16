@@ -359,7 +359,7 @@ class DataLoaderSkipGram():
                     if word == center_word or word not in vocabulary:
                         continue
                     context_words.append(vocabulary.get_index(word))
-                    target_words.append(vocabulary.get_index(word))
+                    target_words.append(vocabulary.get_index(center_word))
 
         context_words = np.array(context_words)
         target_words = np.array(target_words)
