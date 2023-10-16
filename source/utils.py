@@ -38,6 +38,7 @@ def print_commands() -> None:
     msg += "\t'--help' or '-h': \tShows this information\n"
     msg += "\t'--cbow' or '-cbow': \tStarts the CBOW program, takes parameters from 'config_cbow.yml' file\n"
     msg += "\t'--skipgram' or '-sg': \tStarts the skip-gram program, takes parameters from 'config_skipgram.yml' file\n"
+    msg += "\t'--glove' or '-glove': \tStarts the GloVe program, takes parameters from 'config_glove.yml' file\n"
     print(msg)
 
 

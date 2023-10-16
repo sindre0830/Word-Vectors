@@ -1,0 +1,15 @@
+seed: 0
+device: "cuda:0"
+
+vocabulary_size: 10000
+batch_size: 4096
+window_size: 10
+embedding_size: 200
+
+learning_rate: 0.001
+max_epochs: 200
+min_loss_improvement: 0.00001
+patience: 10
+validation_interval: 1
+x_max: 100
+alpha: 0.75

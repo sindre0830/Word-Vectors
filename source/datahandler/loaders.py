@@ -386,7 +386,7 @@ class DataLoaderCooccurrence:
         self._token_ids = None
         self._cooccurr_counts = None
         
-        self._num_samples = len(self._token_ids)
+        self._num_samples = 0
         self._batch_size = batch_size
 
     def build(self, words: list[str], vocabulary: Vocabulary, window_size: int, device: str):
@@ -400,8 +400,8 @@ class DataLoaderCooccurrence:
             vocabulary_size = len(vocabulary)
             cooccurrence_matrix = scipy.sparse.lil_matrix((vocabulary_size, vocabulary_size), dtype=np.float32)
 
-            for idx, word in enumerate(tqdm(words, desc="Building training data")):
-                word_idx = vocabulary[word]
+            for idx, word in enumerate(tqdm.tqdm(words, desc="Building training data")):
+                word_idx = vocabulary.get_index(word)
                 if word not in vocabulary or vocabulary.subsample(word, threshold=1e-5):
                     continue
                 # define the boundaries of the window
@@ -421,6 +421,7 @@ class DataLoaderCooccurrence:
         
         self._token_ids = torch.tensor(np.array(list(zip(cooccurrence_matrix.row, cooccurrence_matrix.col))), dtype=torch.long, device=device)
         self._cooccurr_counts = torch.tensor(cooccurrence_matrix.data, dtype=torch.float32, device=device)
+        self._num_samples = len(self._token_ids)
 
 
     def __iter__(self):
