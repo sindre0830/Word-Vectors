@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import tqdm
 import collections
+import scipy.sparse
 
 
 def load_config(filepath: str) -> argparse.Namespace:
@@ -188,3 +189,14 @@ def plot_frequency_distribution(corpus, data_directory: str):
     # save plot
     save_plot(filepath)
     plt.close()
+
+
+def save_npz(filepath: str, x):
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    with open(filepath, "wb") as file:
+        scipy.sparse.save_npz(file, x)
+
+
+def load_npz(filepath: str):
+    with open(filepath, "rb") as file:
+        return scipy.sparse.load_npz(file)
