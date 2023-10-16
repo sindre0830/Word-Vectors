@@ -217,7 +217,7 @@ class ValidationLoader():
 
         rank_counts = [np.sum(self.analogy_similarity_rank == i) for i in range(k)]
 
-        title = f"Rank Distribution of Correct Analogy"
+        title = "Rank Distribution of Correct Analogy"
 
         _, ax = plt.subplots()
         ax.bar(range(1, k + 1), rank_counts)
@@ -235,7 +235,6 @@ class ValidationLoader():
     def evaluate_word_pair_similarity(self, embeddings: np.ndarray, quiet=False):
         model_scores = []
         human_scores = []
-        #print(self.word_pair_similarity_test)
         for word1_idx, word2_idx, human_score in tqdm.tqdm(self.word_pair_similarity_test, desc="Evaluating WordSim353 test", disable=quiet):
             # get vector representations
             word_vector_1 = embeddings[int(word1_idx)]
@@ -385,7 +384,7 @@ class DataLoaderCooccurrence:
     def __init__(self, batch_size: int):
         self._token_ids = None
         self._cooccurr_counts = None
-        
+
         self._num_samples = 0
         self._batch_size = batch_size
 
@@ -415,14 +414,13 @@ class DataLoaderCooccurrence:
                     if context_word_idx == vocabulary.unknown_index or context_word_idx == vocabulary.padding_index:
                         continue
                     cooccurrence_matrix[word_idx, context_word_idx] += 1.0
-    
+
             cooccurrence_matrix = cooccurrence_matrix.tocoo()
             utils.save_npz(cooccurrence_matrix_filepath, cooccurrence_matrix)
-        
+
         self._token_ids = torch.tensor(np.array(list(zip(cooccurrence_matrix.row, cooccurrence_matrix.col))), dtype=torch.long, device=device)
         self._cooccurr_counts = torch.tensor(cooccurrence_matrix.data, dtype=torch.float32, device=device)
         self._num_samples = len(self._token_ids)
-
 
     def __iter__(self):
         for start in range(0, self._num_samples, self._batch_size):

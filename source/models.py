@@ -12,14 +12,14 @@ import tqdm
 
 class ModelGloVe(torch.nn.Module):
     def __init__(
-            self,
-            device: str,
-            vocabulary_size: int,
-            embedding_size: int,
-            x_max: float,
-            alpha: float,
-            padding_idx: int = None
-        ):
+        self,
+        device: str,
+        vocabulary_size: int,
+        embedding_size: int,
+        x_max: float,
+        alpha: float,
+        padding_idx: int = None
+    ):
         super().__init__()
         self.device = device
         self.filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "glove", "model.pt")
@@ -77,21 +77,21 @@ class ModelGloVe(torch.nn.Module):
         x_scaled = (cooccurrence_count / self.x_max).pow(self.alpha)
         weighted_error = (x_scaled.clamp(0, 1) * (prediction - cooccurrence_count.log()) ** 2).mean()
         return weighted_error
-    
+
     def validate(self, validation_dataloader: datahandler.loaders.ValidationLoader) -> float:
         validation_dataloader.evaluate_analogies(self.get_embeddings(), quiet=True)
         return validation_dataloader.analogies_accuracy()
-    
+
     def fit(
-            self,
-            training_dataloader: datahandler.loaders.DataLoaderCooccurrence,
-            validation_dataloader: datahandler.loaders.ValidationLoader,
-            learning_rate: float,
-            max_epochs: int,
-            min_loss_improvement: float,
-            patience: int,
-            validation_interval: int
-        ):
+        self,
+        training_dataloader: datahandler.loaders.DataLoaderCooccurrence,
+        validation_dataloader: datahandler.loaders.ValidationLoader,
+        learning_rate: float,
+        max_epochs: int,
+        min_loss_improvement: float,
+        patience: int,
+        validation_interval: int
+    ):
         # check if cache exists
         if os.path.exists(self.filepath):
             progress_bar = tqdm.tqdm(desc="Loading cached model", total=1)
@@ -170,12 +170,12 @@ class ModelGloVe(torch.nn.Module):
 
 class ModelCBOW(torch.nn.Module):
     def __init__(
-            self,
-            device: str,
-            vocabulary_size: int,
-            embedding_size: int,
-            padding_idx: int = None
-        ):
+        self,
+        device: str,
+        vocabulary_size: int,
+        embedding_size: int,
+        padding_idx: int = None
+    ):
         super().__init__()
         self.device = device
         self.filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "cbow", "model.pt")
@@ -224,21 +224,21 @@ class ModelCBOW(torch.nn.Module):
         context_vector = torch.sum(self.input_embeddings(context_words_idx), dim=1)
         output = torch.matmul(context_vector, self.output_embeddings.weight.t())
         return torch.nn.functional.log_softmax(output, dim=1)
-    
+
     def validate(self, validation_dataloader: datahandler.loaders.ValidationLoader) -> float:
         validation_dataloader.evaluate_analogies(self.get_embeddings(), quiet=True)
         return validation_dataloader.analogies_accuracy()
 
     def fit(
-            self,
-            training_dataloader: datahandler.loaders.DataLoaderCBOW,
-            validation_dataloader: datahandler.loaders.ValidationLoader,
-            learning_rate: float,
-            max_epochs: int,
-            min_loss_improvement: float,
-            patience: int,
-            validation_interval: int
-        ):
+        self,
+        training_dataloader: datahandler.loaders.DataLoaderCBOW,
+        validation_dataloader: datahandler.loaders.ValidationLoader,
+        learning_rate: float,
+        max_epochs: int,
+        min_loss_improvement: float,
+        patience: int,
+        validation_interval: int
+    ):
         # check if cache exists
         if os.path.exists(self.filepath):
             progress_bar = tqdm.tqdm(desc="Loading cached model", total=1)
@@ -315,12 +315,12 @@ class ModelCBOW(torch.nn.Module):
 
 class ModelSkipGram(torch.nn.Module):
     def __init__(
-            self,
-            device: str,
-            vocabulary_size: int,
-            embedding_size: int,
-            padding_idx: int = None
-        ):
+        self,
+        device: str,
+        vocabulary_size: int,
+        embedding_size: int,
+        padding_idx: int = None
+    ):
         super().__init__()
         self.device = device
         self.filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", "skipgram", "model.pt")
@@ -369,21 +369,21 @@ class ModelSkipGram(torch.nn.Module):
         target_vector = self.input_embeddings(target_words)
         output = torch.matmul(target_vector, self.output_embeddings.weight.t())
         return torch.nn.functional.log_softmax(output, dim=1)
-    
+
     def validate(self, validation_dataloader: datahandler.loaders.ValidationLoader) -> float:
         validation_dataloader.evaluate_analogies(self.get_embeddings(), quiet=True)
         return validation_dataloader.analogies_accuracy()
 
     def fit(
-            self,
-            training_dataloader: datahandler.loaders.DataLoaderCBOW,
-            validation_dataloader: datahandler.loaders.ValidationLoader,
-            learning_rate: float,
-            max_epochs: int,
-            min_loss_improvement: float,
-            patience: int,
-            validation_interval: int
-        ):
+        self,
+        training_dataloader: datahandler.loaders.DataLoaderCBOW,
+        validation_dataloader: datahandler.loaders.ValidationLoader,
+        learning_rate: float,
+        max_epochs: int,
+        min_loss_improvement: float,
+        patience: int,
+        validation_interval: int
+    ):
         # check if cache exists
         if os.path.exists(self.filepath):
             progress_bar = tqdm.tqdm(desc="Loading cached model", total=1)

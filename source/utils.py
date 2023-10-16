@@ -74,12 +74,12 @@ def download_file(url: str, save_path: str):
     response = requests.get(url, allow_redirects=True)
     # ensure the request was successful
     response.raise_for_status()
-    
+
     with open(save_path, 'wb') as file:
         file.write(response.content)
 
 
-def normalize(x: np.ndarray, axis = None, keepdims = False) -> np.ndarray:
+def normalize(x: np.ndarray, axis=None, keepdims=False) -> np.ndarray:
     return x / np.linalg.norm(x, axis=axis, keepdims=keepdims)
 
 
@@ -106,12 +106,12 @@ def get_model_progressbar(iter, epoch: int, max_epochs: int) -> tqdm.tqdm:
 
 
 def set_model_progressbar_prefix(
-        progressbar: tqdm.tqdm,
-        train_loss: float = 0.0,
-        best_loss: float = 0.0,
-        train_acc: float = 0.0,
-        best_acc: float = 0.0
-    ):
+    progressbar: tqdm.tqdm,
+    train_loss: float = 0.0,
+    best_loss: float = 0.0,
+    train_acc: float = 0.0,
+    best_acc: float = 0.0
+):
     """
     Set prefix in progressbar and update output.
     """
@@ -142,7 +142,7 @@ def plot_loss_and_accuracy(loss_history: list[float], accuracy_history: list[flo
     ax2.tick_params(axis='y', labelcolor="blue")
     # combine legends
     lines = [line1, line2]
-    labels = [l.get_label() for l in lines]
+    labels = [line.get_label() for line in lines]
     ax1.legend(lines, labels, loc="upper left")
 
     fig.tight_layout(pad=3.0)
@@ -170,7 +170,7 @@ def plot_frequency_distribution(corpus, data_directory: str):
     # check if it already exists
     title = "Word Frequencies in Descending Order"
     filepath = os.path.join(PROJECT_DIRECTORY_PATH, "data", data_directory, "plots", f"{title}.png")
-    
+
     word_freq = collections.Counter(corpus)
     word_freq = sorted(word_freq.values(), reverse=True)
     ranks = np.arange(1, len(word_freq) + 1)
